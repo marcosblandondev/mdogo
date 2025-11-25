@@ -181,4 +181,4 @@ cython_debug/
 .cursorindexingignore
 
 # ui
-.ui/node_modules/
+ui/node_modules/
