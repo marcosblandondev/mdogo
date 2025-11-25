@@ -1,0 +1,27 @@
+POST http://127.0.0.1:8000/estimate-origins HTTP/1.1
+content-type: application/json
+
+{
+  "country_of_birth": "Colombia",
+  "americas_region": "Pacific Colombia",
+  "colony_guess": "New Granada",
+  "ancestors": [
+    {
+      "relation": "parent",
+      "country": "Colombia",
+      "region": "Valle del Cauca",
+      "city": "Cali",
+      "notes": "Mother's family historically lived in the Pacific region near Buenaventura."
+    },
+    {
+      "relation": "grandparent",
+      "country": "Colombia",
+      "region": "Chocó",
+      "city": "Quibdó",
+      "notes": "Oral tradition: great-grandmother came from a mining community."
+    }
+  ],
+  "cultural_tags": [
+    "kongo"
+  ]
+}
