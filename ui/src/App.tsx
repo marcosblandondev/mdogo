@@ -168,16 +168,22 @@ export default function App() {
   return (
     <LanguageProvider>
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
-        {/* Language Selector */}
-        <div className="absolute top-4 right-4 z-10">
-          <LanguageSelector />
-        </div>
-
         {showStepper && (
           <div className="bg-white border-b border-amber-200">
             <div className="max-w-4xl mx-auto px-4 py-6">
+              {/* Language Selector and Stepper - stacked layout */}
+              <div className="flex justify-end mb-4">
+                <LanguageSelector />
+              </div>
               <Stepper currentStep={stepNumber} totalSteps={4} />
             </div>
+          </div>
+        )}
+
+        {/* Language Selector for landing and results pages */}
+        {!showStepper && (
+          <div className="absolute top-4 right-4 z-10">
+            <LanguageSelector />
           </div>
         )}
 
