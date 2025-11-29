@@ -1,7 +1,6 @@
 import pandas as pd
 import json
-import psycopg2
-from psycopg2.extras import execute_batch
+import sqlite3
 
 # ---------------------------------------------
 # 1) Load mappings
@@ -82,38 +81,42 @@ print("Colony-Region Probability Stats (by year):"
       )
 
 # ---------------------------------------------
-# 5) Load into Postgres (colony_region_stats)
+# 5) Load into SQLite (colony_region_stats)
 # ---------------------------------------------
-# conn = psycopg2.connect(
-#     dbname="ancestry",
-#     user="postgres",
-#     password="yourpass",
-#     host="localhost",
-#     port=5432
-# )
+conn = sqlite3.connect("ancestry.db")
+cursor = conn.cursor()
 
-# cursor = conn.cursor()
+# Create table if it does not exist (simple schema for SQLite)
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS colony_region_stats (
+    colony TEXT,
+    region_id TEXT,
+    year_start INTEGER,
+    year_end INTEGER,
+    probability REAL
+)
+""")
 
-# SQL_INSERT = """
-# INSERT INTO colony_region_stats (colony, region_id, year_start, year_end, probability)
-# VALUES (%s, %s, %s, %s, %s)
-# """
+SQL_INSERT = """
+INSERT INTO colony_region_stats (colony, region_id, year_start, year_end, probability)
+VALUES (?, ?, ?, ?, ?)
+"""
 
-# rows = []
-# for _, r in merged_year.iterrows():
-#     year_start = int(r["year_group"])
-#     year_end = year_start + 24
-#     rows.append((
-#         r["colony"],
-#         r["region_id"],
-#         year_start,
-#         year_end,
-#         float(r["probability"])
-#     ))
+rows = []
+for _, r in merged_year.iterrows():
+    year_start = int(r["year_group"])
+    year_end = year_start + 24
+    rows.append((
+        r["colony"],
+        r["region_id"],
+        year_start,
+        year_end,
+        float(r["probability"])
+    ))
 
-# execute_batch(cursor, SQL_INSERT, rows)
-# conn.commit()
-# cursor.close()
-# conn.close()
+cursor.executemany(SQL_INSERT, rows)
+conn.commit()
+cursor.close()
+conn.close()
 
 print("Finished generating colony_region_stats.")

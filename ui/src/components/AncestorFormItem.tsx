@@ -1,9 +1,9 @@
 import React from 'react';
 import { AncestorData } from '../App';
-import { TextInput } from './ui/TextInput';
 import { Dropdown } from './ui/Dropdown';
 import { X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { LocationSelector } from './LocationSelector';
 
 interface AncestorFormItemProps {
   ancestor: AncestorData;
@@ -54,26 +54,20 @@ export function AncestorFormItem({
         required
       />
 
-      <TextInput
-        label={t('step2.countryLabel')}
-        value={ancestor.country}
-        onChange={(value) => onChange({ ...ancestor, country: value })}
-        placeholder={t('step2.countryPlaceholder')}
-        required
-      />
-
-      <TextInput
-        label={t('step2.regionLabel')}
-        value={ancestor.region}
-        onChange={(value) => onChange({ ...ancestor, region: value })}
-        placeholder={t('step2.regionPlaceholder')}
-      />
-
-      <TextInput
-        label={t('step2.cityLabel')}
-        value={ancestor.city}
-        onChange={(value) => onChange({ ...ancestor, city: value })}
-        placeholder={t('step2.cityPlaceholder')}
+      <LocationSelector
+        countryLabel={t('step2.countryLabel')}
+        regionLabel={t('step2.regionLabel')}
+        cityLabel={t('step2.cityLabel')}
+        countryValue={ancestor.country}
+        regionValue={ancestor.region}
+        cityValue={ancestor.city}
+        onCountryChange={(value) => onChange({ ...ancestor, country: value, region: '', city: '' })}
+        onRegionChange={(value) => onChange({ ...ancestor, region: value, city: '' })}
+        onCityChange={(value) => onChange({ ...ancestor, city: value })}
+        countryPlaceholder={t('step2.countryPlaceholder')}
+        regionPlaceholder={t('step2.regionPlaceholder')}
+        cityPlaceholder={t('step2.cityPlaceholder')}
+        countryRequired
       />
 
       <div className="space-y-1.5">

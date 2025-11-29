@@ -4,6 +4,7 @@ import { TextInput } from './ui/TextInput';
 import { Button } from './ui/Button';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { LocationSelector } from './LocationSelector';
 
 interface Step1Props {
   formData: FormData;
@@ -31,30 +32,25 @@ export function Step1({ formData, updateFormData, onNext, onBack }: Step1Props) 
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <TextInput
-            label={t('step1.countryLabel')}
-            value={formData.country_of_birth}
-            onChange={(value) => updateFormData({ country_of_birth: value })}
-            placeholder={t('step1.countryPlaceholder')}
-            required
-            helperText={t('step1.countryHelper')}
-          />
-
-          <TextInput
-            label={t('step1.regionLabel')}
-            value={formData.americas_region}
-            onChange={(value) => updateFormData({ americas_region: value })}
-            placeholder={t('step1.regionPlaceholder')}
-            helperText={t('step1.regionHelper')}
-          />
-
-          <TextInput
-            label={t('step1.colonyLabel')}
-            value={formData.colony_guess}
-            onChange={(value) => updateFormData({ colony_guess: value })}
-            placeholder={t('step1.colonyPlaceholder')}
-            helperText={t('step1.colonyHelper')}
-          />
+          <div className="space-y-1.5">
+            <p className="text-sm text-gray-600">{t('step1.countryHelper')}</p>
+            <LocationSelector
+              countryLabel={t('step1.countryLabel')}
+              regionLabel={t('step1.regionLabel')}
+              cityLabel="City/Town"
+              countryValue={formData.country_of_birth}
+              regionValue={formData.americas_region}
+              cityValue={formData.colony_guess}
+              onCountryChange={(value) => updateFormData({ country_of_birth: value, americas_region: '', colony_guess: '' })}
+              onRegionChange={(value) => updateFormData({ americas_region: value, colony_guess: '' })}
+              onCityChange={(value) => updateFormData({ colony_guess: value })}
+              countryPlaceholder={t('step1.countryPlaceholder')}
+              regionPlaceholder={t('step1.regionPlaceholder')}
+              cityPlaceholder={t('step1.colonyPlaceholder')}
+              countryRequired
+            />
+            <p className="text-sm text-gray-600 mt-2">{t('step1.regionHelper')}</p>
+          </div>
 
           <div className="flex gap-3 pt-4">
             <Button type="button" onClick={onBack} variant="ghost">

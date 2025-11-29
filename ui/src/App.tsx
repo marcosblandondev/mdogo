@@ -137,6 +137,7 @@ export default function App() {
   };
 
   const resetForm = () => {
+    console.log('Resetting form to initial state');
     setFormData({
       country_of_birth: '',
       americas_region: '',

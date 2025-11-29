@@ -8,6 +8,7 @@ interface DropdownProps {
   placeholder?: string;
   required?: boolean;
   helperText?: string;
+  disabled?: boolean;
 }
 
 export function Dropdown({
@@ -18,6 +19,7 @@ export function Dropdown({
   placeholder = 'Select an option',
   required = false,
   helperText,
+  disabled = false,
 }: DropdownProps) {
   return (
     <div className="space-y-1.5">
@@ -29,7 +31,8 @@ export function Dropdown({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all bg-white"
+        disabled={disabled}
+        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all bg-white disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500"
       >
         <option value="">{placeholder}</option>
         {options.map((option) => (

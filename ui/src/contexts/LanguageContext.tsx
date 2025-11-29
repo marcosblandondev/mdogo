@@ -47,7 +47,7 @@ const translations = {
   en: {
     landing: {
       title: 'Trace Your African Roots — Without DNA',
-      description: 'Discover where in Africa your ancestors likely originated using historical records, family history, and cultural markers. Our research-backed Bayesian model analyzes your information to provide a probabilistic estimate of your African regional ancestry.',
+      description: 'Discover where in Africa your ancestors likely originated using historical records, family history, and cultural markers. Our Bayesian based model analyzes your information to provide a probabilistic estimate of your African regional ancestry.',
       startButton: 'Start Ancestry Estimate',
       features: {
         family: {

@@ -37,6 +37,7 @@ export function Step2({ formData, updateFormData, onNext, onBack }: Step2Props) 
   };
 
   const updateAncestor = (index: number, ancestor: AncestorData) => {
+    console.log('Updating ancestor at index', index, ancestor);
     const updatedAncestors = [...formData.ancestors];
     updatedAncestors[index] = ancestor;
     updateFormData({ ancestors: updatedAncestors });

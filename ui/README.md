@@ -1,7 +1,6 @@
 
-  # African Ancestry Estimator UI
-
-  This is a code bundle for African Ancestry Estimator UI. The original project is available at https://www.figma.com/design/DolSnC8TwWNj1PHAuIOcLN/African-Ancestry-Estimator-UI.
+  # mDOGO
+  TODO: Show cultural markers that might be legacy from African ancestors that we can see now a days in the place where the user were born. Identify cultural practices, languages, and traditions that connect to specific African regions.
 
   ## Running the code
 
