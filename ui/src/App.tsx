@@ -25,6 +25,8 @@ export interface FormData {
   cultural_tags: string[];
 }
 
+export type UpdateFormData = (updates: Partial<FormData> | ((prev: FormData) => Partial<FormData>)) => void;
+
 export interface ResultData {
   region_id: string;
   probability: number;
@@ -51,8 +53,11 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const updateFormData = (updates: Partial<FormData>) => {
-    setFormData(prev => ({ ...prev, ...updates }));
+  const updateFormData: UpdateFormData = (updates) => {
+    setFormData(prev => {
+      const computed = typeof updates === 'function' ? updates(prev) : updates;
+      return { ...prev, ...computed };
+    });
   };
 
   const handleSubmit = async () => {

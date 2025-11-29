@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormData } from '../App';
+import { FormData, UpdateFormData } from '../App';
 import { TagSelector } from './ui/TagSelector';
 import { Button } from './ui/Button';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
@@ -7,7 +7,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 interface Step3Props {
   formData: FormData;
-  updateFormData: (updates: Partial<FormData>) => void;
+  updateFormData: UpdateFormData;
   onNext: () => void;
   onBack: () => void;
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormData, AncestorData } from '../App';
+import { FormData, AncestorData, UpdateFormData } from '../App';
 import { AncestorFormItem } from './AncestorFormItem';
 import { Button } from './ui/Button';
 import { ArrowRight, ArrowLeft, Plus } from 'lucide-react';
@@ -7,7 +7,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 interface Step2Props {
   formData: FormData;
-  updateFormData: (updates: Partial<FormData>) => void;
+  updateFormData: UpdateFormData;
   onNext: () => void;
   onBack: () => void;
 }
@@ -28,19 +28,24 @@ export function Step2({ formData, updateFormData, onNext, onBack }: Step2Props) 
       city: '',
       notes: '',
     };
-    updateFormData({ ancestors: [...formData.ancestors, newAncestor] });
+    updateFormData((prev) => ({
+      ancestors: [...prev.ancestors, newAncestor],
+    }));
   };
 
   const removeAncestor = (index: number) => {
-    const updatedAncestors = formData.ancestors.filter((_, i) => i !== index);
-    updateFormData({ ancestors: updatedAncestors });
+    updateFormData((prev) => ({
+      ancestors: prev.ancestors.filter((_, i) => i !== index),
+    }));
   };
 
   const updateAncestor = (index: number, ancestor: AncestorData) => {
     console.log('Updating ancestor at index', index, ancestor);
-    const updatedAncestors = [...formData.ancestors];
-    updatedAncestors[index] = ancestor;
-    updateFormData({ ancestors: updatedAncestors });
+    updateFormData((prev) => {
+      const updatedAncestors = [...prev.ancestors];
+      updatedAncestors[index] = ancestor;
+      return { ancestors: updatedAncestors };
+    });
   };
 
   // Ensure at least one ancestor form
