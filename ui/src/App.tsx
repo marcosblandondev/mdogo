@@ -18,9 +18,9 @@ export interface AncestorData {
 }
 
 export interface FormData {
-  country_of_birth: string;
-  americas_region: string;
-  colony_guess: string;
+  country: string;
+  region: string;
+  city: string;
   ancestors: AncestorData[];
   cultural_tags: string[];
 }
@@ -43,9 +43,9 @@ type Page = 'landing' | 'step1' | 'step2' | 'step3' | 'review' | 'results';
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('landing');
   const [formData, setFormData] = useState<FormData>({
-    country_of_birth: '',
-    americas_region: '',
-    colony_guess: '',
+    country: '',
+    region: '',
+    city: '',
     ancestors: [],
     cultural_tags: [],
   });
@@ -67,9 +67,9 @@ export default function App() {
     try {
       // Prepare the API request body
       const requestBody = {
-        country_of_birth: formData.country_of_birth,
-        americas_region: formData.americas_region || null,
-        colony_guess: formData.colony_guess || null,
+        country: formData.country,
+        region: formData.region || null,
+        city: formData.city || null,
         ancestors: formData.ancestors.map(ancestor => ({
           relation: ancestor.relation,
           country: ancestor.country,
@@ -80,42 +80,44 @@ export default function App() {
         cultural_tags: formData.cultural_tags,
       };
 
+      console.log('Submitting form data:', requestBody);
+
       // Replace with your actual API endpoint
-      const API_ENDPOINT = 'https://your-api.com/estimate-origins';
+      const API_ENDPOINT = 'http://127.0.0.1:8000/estimate-origins';
       
       // Mock response for demonstration
       // In production, uncomment the fetch call below
-      const mockResponse: ApiResponse = {
-        results: [
-          {
-            region_id: 'West Africa - Yoruba',
-            probability: 0.45,
-            explanation: 'Strong cultural markers and historical migration patterns from Yoruba regions align with your family history.'
-          },
-          {
-            region_id: 'West Central Africa - Kongo',
-            probability: 0.28,
-            explanation: 'Geographic and cultural indicators suggest significant connections to Kongo peoples.'
-          },
-          {
-            region_id: 'West Africa - Akan',
-            probability: 0.15,
-            explanation: 'Some cultural practices and regional patterns indicate Akan ancestry.'
-          },
-          {
-            region_id: 'Senegambia',
-            probability: 0.12,
-            explanation: 'Historical records and family locations show possible connections to Senegambia region.'
-          }
-        ],
-        narrative: `Based on your family history in ${formData.country_of_birth} and the cultural markers you've shared, our analysis suggests your ancestors most likely originated from West African regions, particularly areas associated with Yoruba peoples (45% probability). The combination of your family's settlement patterns, cultural practices, and historical migration routes from these regions during the transatlantic period strongly support this estimate. West Central African connections, particularly to Kongo peoples, also appear significant (28% probability). Please note this is a probabilistic estimate based on historical data, not genetic testing.`
-      };
+      // const mockResponse: ApiResponse = {
+      //   results: [
+      //     {
+      //       region_id: 'West Africa - Yoruba',
+      //       probability: 0.45,
+      //       explanation: 'Strong cultural markers and historical migration patterns from Yoruba regions align with your family history.'
+      //     },
+      //     {
+      //       region_id: 'West Central Africa - Kongo',
+      //       probability: 0.28,
+      //       explanation: 'Geographic and cultural indicators suggest significant connections to Kongo peoples.'
+      //     },
+      //     {
+      //       region_id: 'West Africa - Akan',
+      //       probability: 0.15,
+      //       explanation: 'Some cultural practices and regional patterns indicate Akan ancestry.'
+      //     },
+      //     {
+      //       region_id: 'Senegambia',
+      //       probability: 0.12,
+      //       explanation: 'Historical records and family locations show possible connections to Senegambia region.'
+      //     }
+      //   ],
+      //   narrative: `Based on your family history in ${formData.country} and the cultural markers you've shared, our analysis suggests your ancestors most likely originated from West African regions, particularly areas associated with Yoruba peoples (45% probability). The combination of your family's settlement patterns, cultural practices, and historical migration routes from these regions during the transatlantic period strongly support this estimate. West Central African connections, particularly to Kongo peoples, also appear significant (28% probability). Please note this is a probabilistic estimate based on historical data, not genetic testing.`
+      // };
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setResults(mockResponse);
+      // // Simulate API call
+      // await new Promise(resolve => setTimeout(resolve, 2000));
+      // setResults(mockResponse);
 
-      /* 
+      
       // Actual API call - uncomment for production:
       const response = await fetch(API_ENDPOINT, {
         method: 'POST',
@@ -131,7 +133,7 @@ export default function App() {
 
       const data: ApiResponse = await response.json();
       setResults(data);
-      */
+      
 
       setCurrentPage('results');
     } catch (err) {
@@ -144,9 +146,9 @@ export default function App() {
   const resetForm = () => {
     console.log('Resetting form to initial state');
     setFormData({
-      country_of_birth: '',
-      americas_region: '',
-      colony_guess: '',
+      country: '',
+      region: '',
+      city: '',
       ancestors: [],
       cultural_tags: [],
     });

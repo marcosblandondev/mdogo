@@ -81,6 +81,7 @@ const translations = {
       countryPlaceholder: 'e.g., Brazil, United States, Jamaica',
       countryHelper: 'Enter the country where you were born',
       regionLabel: 'Region / State / Province',
+      cityLabel: 'City / Town',
       regionPlaceholder: 'e.g., Bahia, Louisiana, São Paulo',
       regionHelper: 'The specific region or state within your country',
       colonyLabel: 'Colony or Historical Region (Optional)',

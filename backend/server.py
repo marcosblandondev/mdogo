@@ -1,10 +1,26 @@
 # api.py
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 from bayes_model import BayesianAncestryModel, RegionScore
 
 app = FastAPI(title="African Ancestry Estimator (Historical)")
+
+origins = [
+    "http://localhost:3000",   # React dev server
+    "http://127.0.0.1:3000",
+    "http://localhost", 
+    "http://127.0.0.1",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,            # Allow your frontend
+    allow_credentials=True,
+    allow_methods=["*"],              # Allow all HTTP methods
+    allow_headers=["*"],              # Allow all headers
+)
 
 # ---- Pydantic models ----
 
@@ -15,10 +31,17 @@ class AncestorLocation(BaseModel):
     city: Optional[str] = None
     notes: Optional[str] = None
 
+# class EstimateRequest(BaseModel):
+#     country_of_birth: str
+#     americas_region: Optional[str] = None
+#     colony_guess: Optional[str] = None
+#     ancestors: List[AncestorLocation] = []
+#     cultural_tags: List[str] = []
+
 class EstimateRequest(BaseModel):
-    country_of_birth: str
-    americas_region: Optional[str] = None
-    colony_guess: Optional[str] = None
+    country: str
+    city: Optional[str] = None
+    region: Optional[str] = None
     ancestors: List[AncestorLocation] = []
     cultural_tags: List[str] = []
 
@@ -58,11 +81,12 @@ p_l_given_r = {
 
 model = BayesianAncestryModel(priors, p_c_given_r, p_m_given_c_r, p_l_given_r)
 
-# ---- Helper to infer colony & americas_region from ancestors (MVP heuristic) ----
+# ---- Helper to infer colony & americas_region from user and ancestors information (MVP heuristic) ----
 def infer_colony_and_region(req: EstimateRequest):
     # For MVP, just use americas_region if user passes it
-    colony = req.colony_guess
-    americas_region = req.americas_region
+    # TODO: map country, region, city, ancestors to colony + americas_region
+    colony = req.region
+    americas_region = req.country
 
     # You can improve later by mapping countries/regions to colony + americas_region
     # e.g., if country_of_birth == "Colombia" and region == "Valle del Cauca" -> "Pacific Colombia"
@@ -91,8 +115,8 @@ def estimate_origins(req: EstimateRequest):
     top = scores[0] if scores else None
     if top:
         narrative = (
-            f"Based on your family being from {req.country_of_birth}"
-            f"{', region '+req.americas_region if req.americas_region else ''}"
+            f"Based on your family being from {req.country}"
+            f"{', region '+req.region if req.region else ''}"
             f" and the clues you provided, the model estimates that the most likely "
             f"African origin region is {top.region_id} with probability "
             f"{top.probability:.0%}. This is influenced by historical slave trade "

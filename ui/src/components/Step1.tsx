@@ -37,13 +37,13 @@ export function Step1({ formData, updateFormData, onNext, onBack }: Step1Props) 
             <LocationSelector
               countryLabel={t('step1.countryLabel')}
               regionLabel={t('step1.regionLabel')}
-              cityLabel="City/Town"
-              countryValue={formData.country_of_birth}
-              regionValue={formData.americas_region}
-              cityValue={formData.colony_guess}
-              onCountryChange={(value) => updateFormData({ country_of_birth: value, americas_region: '', colony_guess: '' })}
-              onRegionChange={(value) => updateFormData({ americas_region: value, colony_guess: '' })}
-              onCityChange={(value) => updateFormData({ colony_guess: value })}
+              cityLabel={t('step1.cityLabel')}
+              countryValue={formData.country}
+              regionValue={formData.region}
+              cityValue={formData.city}
+              onCountryChange={(value) => updateFormData({ country: value, region: '', city: '' })}
+              onRegionChange={(value) => updateFormData({ region: value, city: '' })}
+              onCityChange={(value) => updateFormData({ city: value })}
               countryPlaceholder={t('step1.countryPlaceholder')}
               regionPlaceholder={t('step1.regionPlaceholder')}
               cityPlaceholder={t('step1.colonyPlaceholder')}

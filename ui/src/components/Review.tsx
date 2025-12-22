@@ -33,18 +33,18 @@ export function Review({ formData, onEdit, onSubmit, onBack, loading }: ReviewPr
               <dl className="space-y-2">
                 <div>
                   <dt className="text-gray-500">{t('review.countryOfBirth')}</dt>
-                  <dd className="text-gray-900">{formData.country_of_birth || t('review.notProvided')}</dd>
+                  <dd className="text-gray-900">{formData.country || t('review.notProvided')}</dd>
                 </div>
-                {formData.americas_region && (
+                {formData.region && (
                   <div>
-                    <dt className="text-gray-500">{t('review.region')}</dt>
-                    <dd className="text-gray-900">{formData.americas_region}</dd>
+                    <dt className="text-gray-500">{t('review.city')}</dt>
+                    <dd className="text-gray-900">{formData.region}</dd>
                   </div>
                 )}
-                {formData.colony_guess && (
+                {formData.city && (
                   <div>
                     <dt className="text-gray-500">{t('review.colony')}</dt>
-                    <dd className="text-gray-900">{formData.colony_guess}</dd>
+                    <dd className="text-gray-900">{formData.city}</dd>
                   </div>
                 )}
               </dl>
