@@ -54,32 +54,7 @@ class EstimateResponse(BaseModel):
     results: List[RegionProbability]
     narrative: str
 
-# ---- Placeholders for model loading (you'd load from DB) ----
-priors = {
-    "region_congo_angola": 0.4,
-    "region_gold_coast": 0.3,
-    "region_bight_of_benin": 0.3
-}
-
-p_c_given_r = {
-    "region_congo_angola": {"New Granada": 0.6, "Bahia": 0.7},
-    "region_gold_coast": {"New Granada": 0.2, "Bahia": 0.1},
-    "region_bight_of_benin": {"New Granada": 0.2, "Bahia": 0.2}
-}
-
-p_m_given_c_r = {
-    "region_congo_angola": {"Pacific Colombia": 0.7, "Bahia Coast": 0.6},
-    "region_gold_coast": {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
-    "region_bight_of_benin": {"Pacific Colombia": 0.4, "Bahia Coast": 0.3}
-}
-
-p_l_given_r = {
-    "region_congo_angola": {"kongo": 1.5},
-    "region_gold_coast": {"yoruba": 1.8},
-    "region_bight_of_benin": {"fon": 1.6}
-}
-
-model = BayesianAncestryModel(priors, p_c_given_r, p_m_given_c_r, p_l_given_r)
+model = BayesianAncestryModel()
 
 # ---- Helper to infer colony & americas_region from user and ancestors information (MVP heuristic) ----
 def infer_colony_and_region(req: EstimateRequest):

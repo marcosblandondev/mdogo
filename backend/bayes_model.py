@@ -2,6 +2,43 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional
 import math
 
+
+# ---- Placeholders for model loading (you'd load from DB) ----
+
+# P(R)
+# Baseline probability of each African region overall (before considering the user’s clues).
+# we can calculate this from the data of how many people are from each region where taken 
+# as slaves compared to the population at the given time
+priors = {
+    "region_congo_angola": 0.4,
+    "region_gold_coast": 0.3,
+    "region_bight_of_benin": 0.3
+}
+
+# P(C | R)
+# For each African region, how likely it is that people from that region arrived in a given colony.
+p_c_given_r = {
+    "region_congo_angola": {"New Granada": 0.6, "Bahia": 0.7},
+    "region_gold_coast": {"New Granada": 0.2, "Bahia": 0.1},
+    "region_bight_of_benin": {"New Granada": 0.2, "Bahia": 0.2}
+}
+
+# P(M | C,R)
+# For each African region, a weight for the user's Americas region (e.g. “Pacific Colombia”, “Bahia Coast”).
+p_m_given_c_r = {
+    "region_congo_angola": {"Pacific Colombia": 0.7, "Bahia Coast": 0.6},
+    "region_gold_coast": {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
+    "region_bight_of_benin": {"Pacific Colombia": 0.4, "Bahia Coast": 0.3}
+}
+
+# P(L | R)
+# These are multipliers (not necessarily probabilities) that boost a region when the user provides cultural tags.
+p_l_given_r = {
+    "region_congo_angola": {"kongo": 1.5},
+    "region_gold_coast": {"yoruba": 1.8},
+    "region_bight_of_benin": {"fon": 1.6}
+}
+
 @dataclass
 class RegionScore:
     region_id: str
@@ -15,13 +52,7 @@ class BayesianAncestryModel:
     components into a relative score for each African region.
     """
 
-    def __init__(
-        self,
-        priors: Dict[str, float],                # P(R)
-        p_c_given_r: Dict[str, Dict[str, float]],# P(C | R)   keyed by region_id -> {colony: prob}
-        p_m_given_c_r: Dict[str, Dict[str, float]], # P(M | C,R) simplified to region_americas -> weight
-        p_l_given_r: Dict[str, Dict[str, float]] # P(L | R) keyed by region_id -> {cultural_tag: weight}
-    ):
+    def __init__(self,):
         self.priors = priors
         self.p_c_given_r = p_c_given_r
         self.p_m_given_c_r = p_m_given_c_r

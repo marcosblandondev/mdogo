@@ -15,7 +15,7 @@ content-type: application/json
     },
     {
       "relation": "grandparent",
-      "country": "Colombia",`
+      "country": "Colombia",
       "region": "Chocó",
       "city": "Quibdó",
       "notes": "Oral tradition: great-grandmother came from a mining community."
