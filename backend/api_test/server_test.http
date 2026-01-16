@@ -3,8 +3,8 @@ content-type: application/json
 
 {
   "country": "Colombia",
-  "city": "Pacific Colombia",
-  "region": "New Granada",
+  "city": "Quibdó",
+  "region": "Chocó",
   "ancestors": [
     {
       "relation": "parent",

@@ -1,0 +1,159 @@
+{"mapping": [
+  {
+    "country": "Colombia",
+    "department": "Chocó",
+    "colony": "New Granada",
+    "americas_region": "Pacific Colombia"
+  },
+  {
+    "country": "Colombia",
+    "department": "Valle del Cauca",
+    "colony": "New Granada",
+    "americas_region": "Pacific Colombia"
+  },
+  {
+    "country": "Colombia",
+    "department": "Cauca",
+    "colony": "New Granada",
+    "americas_region": "Pacific Colombia"
+  },
+  {
+    "country": "Colombia",
+    "department": "Nariño",
+    "colony": "New Granada",
+    "americas_region": "Pacific Colombia"
+  },
+  {
+    "country": "Colombia",
+    "department": "Bolívar",
+    "colony": "New Granada",
+    "americas_region": "Caribbean Colombia"
+  },
+  {
+    "country": "Colombia",
+    "department": "Atlántico",
+    "colony": "New Granada",
+    "americas_region": "Caribbean Colombia"
+  },
+  {
+    "country": "Colombia",
+    "department": "Córdoba",
+    "colony": "New Granada",
+    "americas_region": "Caribbean Colombia"
+  },
+  {
+    "country": "Brazil",
+    "department": "Bahia",
+    "colony": "Bahia",
+    "americas_region": "Bahia Coast"
+  },
+  {
+    "country": "Brazil",
+    "department": "Pernambuco",
+    "colony": "Pernambuco",
+    "americas_region": "Northeast Brazil"
+  },
+  {
+    "country": "Brazil",
+    "department": "Rio de Janeiro",
+    "colony": "Rio de Janeiro",
+    "americas_region": "Southeast Brazil"
+  },
+  {
+    "country": "Brazil",
+    "department": "São Paulo",
+    "colony": "São Paulo",
+    "americas_region": "Southeast Brazil"
+  },
+  {
+    "country": "Brazil",
+    "department": "Maranhão",
+    "colony": "Maranhão",
+    "americas_region": "North Brazil"
+  },
+  {
+    "country": "Brazil",
+    "department": "Pará",
+    "colony": "Pará",
+    "americas_region": "Amazon Brazil"
+  },
+  {
+    "country": "Cuba",
+    "department": null,
+    "colony": "Cuba",
+    "americas_region": "Cuba"
+  },
+  {
+    "country": "Jamaica",
+    "department": null,
+    "colony": "Jamaica",
+    "americas_region": "Jamaica"
+  },
+  {
+    "country": "Haiti",
+    "department": null,
+    "colony": "Haiti",
+    "americas_region": "Saint-Domingue"
+  },
+  {
+    "country": "United States",
+    "department": "South Carolina",
+    "colony": "South Carolina",
+    "americas_region": "US South Atlantic"
+  },
+  {
+    "country": "United States",
+    "department": "Georgia",
+    "colony": "Georgia",
+    "americas_region": "US South Atlantic"
+  },
+  {
+    "country": "United States",
+    "department": "Virginia",
+    "colony": "Virginia",
+    "americas_region": "US Chesapeake"
+  },
+  {
+    "country": "United States",
+    "department": "Maryland",
+    "colony": "Maryland",
+    "americas_region": "US Chesapeake"
+  },
+  {
+    "country": "United States",
+    "department": "Louisiana",
+    "colony": "Louisiana",
+    "americas_region": "US Gulf Coast"
+  },
+  {
+    "country": "Bahamas",
+    "department": null,
+    "colony": "Bahamas",
+    "americas_region": "Bahamas"
+  },
+  {
+    "country": "Suriname",
+    "department": null,
+    "colony": "Dutch Guianas",
+    "americas_region": "Dutch Guianas"
+  },
+  {
+    "country": "Venezuela",
+    "department": null,
+    "colony": "Venezuela",
+    "americas_region": "Venezuela"
+  },
+  {
+    "country": "Puerto Rico",
+    "department": null,
+    "colony": "Puerto Rico",
+    "americas_region": "Puerto Rico"
+  },
+  {
+    "country": "Dominican Republic",
+    "department": null,
+    "colony": "Hispaniola",
+    "americas_region": "Hispaniola"
+  }
+]
+}

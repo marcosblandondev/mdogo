@@ -26,7 +26,7 @@ export function RegionCard({ result, rank }: RegionCardProps) {
           <div className="w-8 h-8 bg-amber-600 text-white rounded-full flex items-center justify-center">
             {rank}
           </div>
-          <h3 className="text-amber-900">{result.region_id}</h3>
+          <h3 className="text-amber-900">{result.region_name}</h3>
         </div>
         <div className="text-right">
           <div className="text-amber-900">{probabilityPercent}%</div>

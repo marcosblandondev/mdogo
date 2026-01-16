@@ -29,6 +29,7 @@ export type UpdateFormData = (updates: Partial<FormData> | ((prev: FormData) => 
 
 export interface ResultData {
   region_id: string;
+  region_name: string;
   probability: number;
   explanation: string;
 }

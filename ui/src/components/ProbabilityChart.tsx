@@ -11,7 +11,7 @@ export function ProbabilityChart({ results }: ProbabilityChartProps) {
   const { t } = useLanguage();
   
   const chartData = results.map((result) => ({
-    name: result.region_id,
+    name: result.region_name,
     probability: result.probability * 100,
   }));
 

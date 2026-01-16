@@ -17,6 +17,7 @@ priors = {
 
 # P(C | R)
 # For each African region, how likely it is that people from that region arrived in a given colony.
+# TODO: replace this with data from DB, sum up probability when more than one entry found
 p_c_given_r = {
     "region_congo_angola": {"New Granada": 0.6, "Bahia": 0.7},
     "region_gold_coast": {"New Granada": 0.2, "Bahia": 0.1},
@@ -38,6 +39,12 @@ p_l_given_r = {
     "region_gold_coast": {"yoruba": 1.8},
     "region_bight_of_benin": {"fon": 1.6}
 }
+
+def get_african_region_name(region_id: str) -> str:
+    import json
+    with open("data_pipeline/african_region_names.json") as f:
+        data = json.load(f)
+    return data.get(region_id, "Unknown Region")
 
 @dataclass
 class RegionScore:
@@ -77,7 +84,7 @@ class BayesianAncestryModel:
         scores: List[RegionScore] = []
         for region_id, prior in self.priors.items():
             log_score = math.log(prior + 1e-12)  # work in log-space to avoid underflow
-            explanation_parts = [f"P(R={region_id})={prior:.3f}"]
+            explanation_parts = [f"P(R={get_african_region_name(region_id)})={prior:.3f}"]
 
             # P(C | R)
             if colony:
