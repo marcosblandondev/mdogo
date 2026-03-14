@@ -2,8 +2,12 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional
 import math
 
+import sqlite3
+
 
 # ---- Placeholders for model loading (you'd load from DB) ----
+
+DEFAULT_PROBABILITY = 0.5
 
 # P(R)
 # Baseline probability of each African region overall (before considering the user’s clues).
@@ -23,6 +27,18 @@ p_c_given_r = {
     "region_gold_coast": {"New Granada": 0.2, "Bahia": 0.1},
     "region_bight_of_benin": {"New Granada": 0.2, "Bahia": 0.2}
 }
+
+def get_p_c(region_id: str, colony: str) -> float:
+    conn = sqlite3.connect("./data_pipeline/ancestry.db")
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT sum(probability) as probability FROM colony_region_stats WHERE region_id=? AND colony=?",
+        (region_id, colony)
+    )
+    row = cursor.fetchone()
+    if row:
+        return row[0]
+    return DEFAULT_PROBABILITY  # default fallback
 
 # P(M | C,R)
 # For each African region, a weight for the user's Americas region (e.g. “Pacific Colombia”, “Bahia Coast”).
@@ -88,8 +104,9 @@ class BayesianAncestryModel:
 
             # P(C | R)
             if colony:
-                colony_probs = self.p_c_given_r.get(region_id, {})
-                p_c = self._safe_get(colony_probs, colony, default=0.5)
+                #colony_probs = self.p_c_given_r.get(region_id, {})
+                #p_c = self._safe_get(colony_probs, colony, default=0.5)
+                p_c = get_p_c(region_id, colony)
                 log_score += math.log(p_c + 1e-12)
                 explanation_parts.append(f"P(C={colony}|R)≈{p_c:.3f}")
 
