@@ -1,66 +1,75 @@
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 import math
-
 import sqlite3
 
+DB_PATH = "./data_pipeline/ancestry.db"
+DEFAULT_P_C = 0.01  # low fallback when a region had no voyages to a colony
 
-# ---- Placeholders for model loading (you'd load from DB) ----
 
-DEFAULT_PROBABILITY = 0.5
+def _load_priors() -> Dict[str, float]:
+    """P(R) — average presence of each region across all colonies, normalized."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT region_id, AVG(probability)
+        FROM colony_region_stats
+        WHERE probability IS NOT NULL
+        GROUP BY region_id
+    """)
+    rows = cursor.fetchall()
+    conn.close()
 
-# P(R)
-# Baseline probability of each African region overall (before considering the user’s clues).
-# we can calculate this from the data of how many people are from each region where taken 
-# as slaves compared to the population at the given time
-priors = {
-    "region_congo_angola": 0.4,
-    "region_gold_coast": 0.3,
-    "region_bight_of_benin": 0.3
-}
+    raw = {region_id: avg for region_id, avg in rows}
+    total = sum(raw.values())
+    return {rid: v / total for rid, v in raw.items()} if total > 0 else raw
 
-# P(C | R)
-# For each African region, how likely it is that people from that region arrived in a given colony.
-# TODO: replace this with data from DB, sum up probability when more than one entry found
-p_c_given_r = {
-    "region_congo_angola": {"New Granada": 0.6, "Bahia": 0.7},
-    "region_gold_coast": {"New Granada": 0.2, "Bahia": 0.1},
-    "region_bight_of_benin": {"New Granada": 0.2, "Bahia": 0.2}
-}
 
 def get_p_c(region_id: str, colony: str) -> float:
-    conn = sqlite3.connect("./data_pipeline/ancestry.db")
+    """P(C | R) — average fraction of enslaved people from region that went to colony."""
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT sum(probability) as probability FROM colony_region_stats WHERE region_id=? AND colony=?",
+        """SELECT AVG(probability) FROM colony_region_stats
+           WHERE region_id=? AND colony=? AND probability IS NOT NULL""",
         (region_id, colony)
     )
     row = cursor.fetchone()
-    if row:
+    conn.close()
+    if row and row[0] is not None:
         return row[0]
-    return DEFAULT_PROBABILITY  # default fallback
+    return DEFAULT_P_C
 
-# P(M | C,R)
-# For each African region, a weight for the user's Americas region (e.g. “Pacific Colombia”, “Bahia Coast”).
-p_m_given_c_r = {
-    "region_congo_angola": {"Pacific Colombia": 0.7, "Bahia Coast": 0.6},
-    "region_gold_coast": {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
-    "region_bight_of_benin": {"Pacific Colombia": 0.4, "Bahia Coast": 0.3}
-}
-
-# P(L | R)
-# These are multipliers (not necessarily probabilities) that boost a region when the user provides cultural tags.
-p_l_given_r = {
-    "region_congo_angola": {"kongo": 1.5},
-    "region_gold_coast": {"yoruba": 1.8},
-    "region_bight_of_benin": {"fon": 1.6}
-}
 
 def get_african_region_name(region_id: str) -> str:
     import json
-    with open("data_pipeline/african_region_names.json") as f:
+    with open("data_pipeline/african_region_names.json", encoding="utf-8") as f:
         data = json.load(f)
-    return data.get(region_id, "Unknown Region")
+    return data.get(region_id, region_id)
+
+
+# P(M | C,R) — regional migration weights (hardcoded for MVP)
+p_m_given_c_r = {
+    "region_senegambia":      {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
+    "region_bight_of_benin":  {"Pacific Colombia": 0.4, "Bahia Coast": 0.5},
+    "region_bight_of_biafra": {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
+    "region_gold_coast":      {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
+    "region_windward_coast":  {"Pacific Colombia": 0.4, "Bahia Coast": 0.3},
+    "region_sierra_leone":    {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
+    "region_east_africa":     {"Pacific Colombia": 0.2, "Bahia Coast": 0.4},
+}
+
+# P(L | R) — cultural tag multipliers (hardcoded for MVP)
+p_l_given_r = {
+    "region_senegambia":      {"mandinka": 1.6, "wolof": 1.5, "islam": 1.4},
+    "region_bight_of_benin":  {"yoruba": 1.8, "fon": 1.6, "candomble": 1.5, "vodou": 1.5},
+    "region_bight_of_biafra": {"igbo": 1.8, "efik": 1.5},
+    "region_gold_coast":      {"akan": 1.7, "twi": 1.6, "asante": 1.6},
+    "region_windward_coast":  {"kru": 1.5},
+    "region_sierra_leone":    {"temne": 1.5, "mende": 1.5},
+    "region_east_africa":     {"swahili": 1.5, "makua": 1.5},
+}
+
 
 @dataclass
 class RegionScore:
@@ -69,15 +78,16 @@ class RegionScore:
     probability: float = 0.0
     explanation: str = ""
 
+
 class BayesianAncestryModel:
     """
-    Simple Bayesian-style model that combines multiple likelihood
-    components into a relative score for each African region.
+    Bayesian ancestry model driven by historical Trans-Atlantic slave trade data.
+    Priors and P(C|R) are loaded from the DB; migration and cultural weights are
+    hardcoded for the MVP.
     """
 
-    def __init__(self,):
-        self.priors = priors
-        self.p_c_given_r = p_c_given_r
+    def __init__(self):
+        self.priors = _load_priors()
         self.p_m_given_c_r = p_m_given_c_r
         self.p_l_given_r = p_l_given_r
 
@@ -92,25 +102,23 @@ class BayesianAncestryModel:
     ) -> List[RegionScore]:
         """
         colony: e.g. 'New Granada' / 'Bahia' / 'South Carolina'
-        americas_region: more local region, e.g. 'Pacific Colombia', 'Bahia Coast'
-        cultural_tags: list of small clues, e.g. ['yoruba', 'kongo', 'candomble']
+        americas_region: e.g. 'Pacific Colombia', 'Bahia Coast'
+        cultural_tags: e.g. ['yoruba', 'kongo', 'candomble']
         """
         cultural_tags = cultural_tags or []
 
         scores: List[RegionScore] = []
         for region_id, prior in self.priors.items():
-            log_score = math.log(prior + 1e-12)  # work in log-space to avoid underflow
+            log_score = math.log(prior + 1e-12)
             explanation_parts = [f"P(R={get_african_region_name(region_id)})={prior:.3f}"]
 
-            # P(C | R)
+            # P(C | R) from DB
             if colony:
-                #colony_probs = self.p_c_given_r.get(region_id, {})
-                #p_c = self._safe_get(colony_probs, colony, default=0.5)
                 p_c = get_p_c(region_id, colony)
                 log_score += math.log(p_c + 1e-12)
                 explanation_parts.append(f"P(C={colony}|R)≈{p_c:.3f}")
 
-            # P(M | C,R) simplified to americas_region weight
+            # P(M | C,R)
             if americas_region:
                 region_mig_probs = self.p_m_given_c_r.get(region_id, {})
                 p_m = self._safe_get(region_mig_probs, americas_region, default=0.7)
@@ -123,17 +131,15 @@ class BayesianAncestryModel:
                 for tag in cultural_tags:
                     p_l = self._safe_get(region_cult_probs, tag, default=1.0)
                     log_score += math.log(p_l + 1e-12)
-                    explanation_parts.append(f"P(L includes {tag}|R)≈{p_l:.3f}")
+                    explanation_parts.append(f"P(L={tag}|R)≈{p_l:.3f}")
 
-            scores.append(
-                RegionScore(
-                    region_id=region_id,
-                    score=log_score,
-                    explanation="; ".join(explanation_parts)
-                )
-            )
+            scores.append(RegionScore(
+                region_id=region_id,
+                score=log_score,
+                explanation="; ".join(explanation_parts)
+            ))
 
-        # normalize log-scores into probabilities
+        # normalize log-scores to probabilities
         max_log = max(s.score for s in scores)
         exp_scores = [math.exp(s.score - max_log) for s in scores]
         total = sum(exp_scores)
@@ -141,43 +147,19 @@ class BayesianAncestryModel:
         for s, exp_s in zip(scores, exp_scores):
             s.probability = exp_s / total if total > 0 else 0.0
 
-        # sort descending by probability
         scores.sort(key=lambda s: s.probability, reverse=True)
         return scores
 
 
 if __name__ == "__main__":
-    # Very small dummy example
-    priors = {
-        "region_congo_angola": 0.4,
-        "region_gold_coast": 0.3,
-        "region_bight_of_benin": 0.3
-    }
+    model = BayesianAncestryModel()
+    print("Loaded regions:", list(model.priors.keys()))
+    print()
 
-    p_c_given_r = {
-        "region_congo_angola": {"New Granada": 0.6, "Bahia": 0.7},
-        "region_gold_coast": {"New Granada": 0.2, "Bahia": 0.1},
-        "region_bight_of_benin": {"New Granada": 0.2, "Bahia": 0.2}
-    }
-
-    p_m_given_c_r = {
-        "region_congo_angola": {"Pacific Colombia": 0.7},
-        "region_gold_coast": {"Pacific Colombia": 0.3},
-        "region_bight_of_benin": {"Pacific Colombia": 0.4}
-    }
-
-    p_l_given_r = {
-        "region_congo_angola": {"kongo": 1.5, "bantu": 1.3},
-        "region_gold_coast": {"yoruba": 1.8, "akan": 1.5},
-        "region_bight_of_benin": {"fon": 1.6}
-    }
-
-    model = BayesianAncestryModel(priors, p_c_given_r, p_m_given_c_r, p_l_given_r)
     results = model.estimate(
         colony="New Granada",
         americas_region="Pacific Colombia",
-        cultural_tags=["kongo"]
+        cultural_tags=["yoruba"]
     )
-
     for r in results:
-        print(r.region_id, f"{r.probability:.3f}", "->", r.explanation)
+        print(f"{r.region_id:35s} {r.probability:.3f}  {r.explanation}")

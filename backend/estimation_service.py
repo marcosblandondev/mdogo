@@ -34,30 +34,34 @@ class EstimateResponse(BaseModel):
 model = BayesianAncestryModel()
 
 # ---- Helper to infer colony & americas_region from user and ancestors information (MVP heuristic) ----
+def _normalize(s: str) -> str:
+    import unicodedata
+    return unicodedata.normalize("NFD", s).encode("ascii", "ignore").decode().lower().strip()
+
 def infer_colony_and_region(req: EstimateRequest):
-    country = req.country.lower().strip()
-    department = (req.region or "").lower().strip()
+    country = _normalize(req.country)
+    department = _normalize(req.region or "")
 
     print(f"Inferring colony and americas_region for country='{country}', department='{department}'")
 
     # Load mapping data
     import json
-    with open("data_pipeline/country_department_colony_mapping.json") as f:
+    with open("data_pipeline/country_department_colony_mapping.json", encoding="utf-8") as f:
         data = json.load(f)
     mapping = data["mapping"]
 
     # 1) exact country + department
     for row in mapping:
         if (
-            row["country"].lower() == country and
+            _normalize(row["country"]) == country and
             row["department"] and
-            row["department"].lower() == department
+            _normalize(row["department"]) == department
         ):
             return row["colony"], row["americas_region"]
 
     # 2) country-only fallback
     for row in mapping:
-        if row["country"].lower() == country and row["department"] is None:
+        if _normalize(row["country"]) == country and row["department"] is None:
             return row["colony"], row["americas_region"]
 
     return None, None
