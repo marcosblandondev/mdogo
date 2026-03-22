@@ -41,11 +41,11 @@ It is a **historical exploration tool** grounded in data and transparency.
 
 ---
 
-## 🧠 How it works (in simple terms)
+## 🧠 How it works
 
 mDogo combines:
 
-- 📊 Historical slave trade data (routes, regions, ports)
+- 📊 Historical slave trade data (routes, regions, ports) from the **Slave Voyages database (slavevoyages.org)**
 - 🗺️ Geographic information (countries, regions, cities)
 - 🧩 Family history inputs (what the user already knows)
 - 🧮 A probabilistic model (Bayesian inference)
