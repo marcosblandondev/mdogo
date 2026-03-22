@@ -1,6 +1,22 @@
 # 🌍 mDogo
 
-> *Reconnecting fragments of history across the Atlantic.*
+<p align="center">
+  <strong>Reconnecting fragments of history across the Atlantic</strong>
+</p>
+
+<p align="center">
+  🧭 Explore • 📊 Learn • 🤝 Reconnect
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/status-MVP-blue" />
+  <img src="https://img.shields.io/badge/backend-FastAPI-green" />
+  <img src="https://img.shields.io/badge/frontend-React-blue" />
+  <img src="https://img.shields.io/badge/license-MIT-lightgrey" />
+  <img src="https://img.shields.io/badge/contributions-welcome-orange" />
+</p>
+
+---
 
 **mDogo** (from Swahili, meaning something close to *brother* or *kin*) is an open, educational tool that helps people explore the historical links between Africa and the Americas.
 
