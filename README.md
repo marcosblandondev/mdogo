@@ -155,12 +155,9 @@ mDogo aims to become:
 
 ---
 
-## ❤️ Final note
+## 📜 License
 
-This project is built with respect for the millions of lives impacted by the transatlantic slave trade.
-
-If mDogo helps even one person feel more connected to their history,  
-it has already fulfilled its purpose.
+GNU GPL v3 License
 
 ---
 
