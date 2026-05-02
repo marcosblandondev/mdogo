@@ -203,7 +203,7 @@ class BayesianAncestryModel:
 
 if __name__ == "__main__":
     model = BayesianAncestryModel()
-    print("Loaded regions:", list(model.priors.keys()))
+    print("Loaded regions:", list(model._get_priors(None).keys()))
     print()
 
     results = model.estimate(
