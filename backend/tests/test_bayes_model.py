@@ -44,3 +44,21 @@ def test_cluster_deduplication():
     prob_both = next(r.probability for r in results_both if r.region_id == "region_bight_of_benin")
     prob_yoruba = next(r.probability for r in results_yoruba_only if r.region_id == "region_bight_of_benin")
     assert abs(prob_both - prob_yoruba) < 1e-9
+
+
+def test_destination_conditional_prior_differs_from_global():
+    """Priors for 'Bahia' must differ from global average and rank Bight of Benin highest."""
+    model = BayesianAncestryModel()
+    bahia_priors = model._get_priors("Bahia")
+    global_priors = model._get_priors(None)
+    assert bahia_priors != global_priors
+    top_region = max(bahia_priors, key=bahia_priors.get)
+    assert top_region == "region_bight_of_benin"
+
+
+def test_bahia_yoruba_confidence_increases_with_conditional_prior():
+    """Bight of Benin probability for Bahia+yoruba must be > 0.5 with destination-conditional prior."""
+    model = BayesianAncestryModel()
+    results = model.estimate(colony="Bahia", americas_region=None, cultural_tags=["yoruba"])
+    bight_prob = next(r.probability for r in results if r.region_id == "region_bight_of_benin")
+    assert bight_prob > 0.5

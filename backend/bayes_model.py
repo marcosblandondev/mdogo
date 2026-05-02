@@ -7,19 +7,29 @@ DB_PATH = "./data_pipeline/ancestry.db"
 DEFAULT_P_C = 0.01  # low fallback when a region had no voyages to a colony
 
 
-def _load_priors() -> Dict[str, float]:
-    """P(R) — average presence of each region across all colonies, normalized."""
+def _load_priors(colony: Optional[str] = None) -> Dict[str, float]:
+    """P(R) — normalized region probabilities.
+    If colony is provided, conditions on that destination. Falls back to global average."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("""
-        SELECT region_id, AVG(probability)
-        FROM colony_region_stats
-        WHERE probability IS NOT NULL
-        GROUP BY region_id
-    """)
+    if colony:
+        cursor.execute("""
+            SELECT region_id, AVG(probability)
+            FROM colony_region_stats
+            WHERE colony = ? AND probability IS NOT NULL
+            GROUP BY region_id
+        """, (colony,))
+    else:
+        cursor.execute("""
+            SELECT region_id, AVG(probability)
+            FROM colony_region_stats
+            WHERE probability IS NOT NULL
+            GROUP BY region_id
+        """)
     rows = cursor.fetchall()
     conn.close()
-
+    if not rows:
+        return _load_priors(None) if colony else {}
     raw = {region_id: avg for region_id, avg in rows}
     total = sum(raw.values())
     return {rid: v / total for rid, v in raw.items()} if total > 0 else raw
@@ -87,7 +97,7 @@ class BayesianAncestryModel:
     """
 
     def __init__(self):
-        self.priors = _load_priors()
+        self._priors_cache: Dict[Optional[str], Dict[str, float]] = {}
         self.migration_weights = _load_migration_weights()
         self.tag_likelihoods = _load_tag_likelihoods()
         self.tag_clusters = _load_tag_clusters()
@@ -96,6 +106,11 @@ class BayesianAncestryModel:
             for cluster, tags in self.tag_clusters.items()
             for tag in tags
         }
+
+    def _get_priors(self, colony: Optional[str]) -> Dict[str, float]:
+        if colony not in self._priors_cache:
+            self._priors_cache[colony] = _load_priors(colony)
+        return self._priors_cache[colony]
 
     def _safe_get(self, d: Dict, key: str, default: float = 1.0) -> float:
         return d.get(key, default)
@@ -136,8 +151,9 @@ class BayesianAncestryModel:
         """
         cultural_tags = cultural_tags or []
 
+        priors = self._get_priors(colony)
         scores: List[RegionScore] = []
-        for region_id, prior in self.priors.items():
+        for region_id, prior in priors.items():
             log_score = math.log(prior + 1e-12)
             explanation_parts = [f"P(R={get_african_region_name(region_id)})={prior:.3f}"]
 
