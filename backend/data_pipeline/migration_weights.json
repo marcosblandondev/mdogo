@@ -1,0 +1,10 @@
+{
+  "region_senegambia":      {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
+  "region_bight_of_benin":  {"Pacific Colombia": 0.4, "Bahia Coast": 0.5},
+  "region_bight_of_biafra": {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
+  "region_gold_coast":      {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
+  "region_windward_coast":  {"Pacific Colombia": 0.4, "Bahia Coast": 0.3},
+  "region_sierra_leone":    {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
+  "region_east_africa":     {"Pacific Colombia": 0.2, "Bahia Coast": 0.4},
+  "region_other_africa":    {"Pacific Colombia": 0.3, "Bahia Coast": 0.3}
+}

@@ -48,16 +48,16 @@ def get_african_region_name(region_id: str) -> str:
     return data.get(region_id, region_id)
 
 
-# P(M | C,R) — regional migration weights (hardcoded for MVP)
-p_m_given_c_r = {
-    "region_senegambia":      {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
-    "region_bight_of_benin":  {"Pacific Colombia": 0.4, "Bahia Coast": 0.5},
-    "region_bight_of_biafra": {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
-    "region_gold_coast":      {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
-    "region_windward_coast":  {"Pacific Colombia": 0.4, "Bahia Coast": 0.3},
-    "region_sierra_leone":    {"Pacific Colombia": 0.3, "Bahia Coast": 0.3},
-    "region_east_africa":     {"Pacific Colombia": 0.2, "Bahia Coast": 0.4},
-}
+def _load_migration_weights() -> Dict[str, Dict[str, float]]:
+    import json
+    with open("data_pipeline/migration_weights.json", encoding="utf-8") as f:
+        raw = json.load(f)
+    normalized = {}
+    for region_id, destinations in raw.items():
+        total = sum(destinations.values())
+        normalized[region_id] = {k: v / total for k, v in destinations.items()} if total > 0 else dict(destinations)
+    return normalized
+
 
 # P(L | R) — cultural tag multipliers (hardcoded for MVP)
 p_l_given_r = {
@@ -88,8 +88,8 @@ class BayesianAncestryModel:
 
     def __init__(self):
         self.priors = _load_priors()
-        self.p_m_given_c_r = p_m_given_c_r
-        self.p_l_given_r = p_l_given_r
+        self.migration_weights = _load_migration_weights()
+        self.p_l_given_r = p_l_given_r  # unchanged for now
 
     def _safe_get(self, d: Dict, key: str, default: float = 1.0) -> float:
         return d.get(key, default)
@@ -120,7 +120,7 @@ class BayesianAncestryModel:
 
             # P(M | C,R)
             if americas_region:
-                region_mig_probs = self.p_m_given_c_r.get(region_id, {})
+                region_mig_probs = self.migration_weights.get(region_id, {})
                 p_m = self._safe_get(region_mig_probs, americas_region, default=0.7)
                 log_score += math.log(p_m + 1e-12)
                 explanation_parts.append(f"P(M={americas_region}|C,R)≈{p_m:.3f}")
