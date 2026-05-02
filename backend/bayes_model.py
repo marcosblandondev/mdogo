@@ -59,16 +59,16 @@ def _load_migration_weights() -> Dict[str, Dict[str, float]]:
     return normalized
 
 
-# P(L | R) — cultural tag multipliers (hardcoded for MVP)
-p_l_given_r = {
-    "region_senegambia":      {"mandinka": 1.6, "wolof": 1.5, "islam": 1.4},
-    "region_bight_of_benin":  {"yoruba": 1.8, "fon": 1.6, "candomble": 1.5, "vodou": 1.5},
-    "region_bight_of_biafra": {"igbo": 1.8, "efik": 1.5},
-    "region_gold_coast":      {"akan": 1.7, "twi": 1.6, "asante": 1.6},
-    "region_windward_coast":  {"kru": 1.5},
-    "region_sierra_leone":    {"temne": 1.5, "mende": 1.5},
-    "region_east_africa":     {"swahili": 1.5, "makua": 1.5},
-}
+def _load_tag_likelihoods() -> Dict[str, Dict[str, float]]:
+    import json
+    with open("data_pipeline/cultural_tag_likelihoods.json", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def _load_tag_clusters() -> Dict[str, List[str]]:
+    import json
+    with open("data_pipeline/tag_clusters.json", encoding="utf-8") as f:
+        return json.load(f)
 
 
 @dataclass
@@ -89,10 +89,39 @@ class BayesianAncestryModel:
     def __init__(self):
         self.priors = _load_priors()
         self.migration_weights = _load_migration_weights()
-        self.p_l_given_r = p_l_given_r  # unchanged for now
+        self.tag_likelihoods = _load_tag_likelihoods()
+        self.tag_clusters = _load_tag_clusters()
+        self._tag_to_cluster: Dict[str, str] = {
+            tag: cluster
+            for cluster, tags in self.tag_clusters.items()
+            for tag in tags
+        }
 
     def _safe_get(self, d: Dict, key: str, default: float = 1.0) -> float:
         return d.get(key, default)
+
+    def _group_tags_by_cluster(self, cultural_tags: List[str]):
+        cluster_selections: Dict[str, List[str]] = {}
+        ungrouped: List[str] = []
+        for tag in cultural_tags:
+            cluster = self._tag_to_cluster.get(tag)
+            if cluster:
+                cluster_selections.setdefault(cluster, []).append(tag)
+            else:
+                ungrouped.append(tag)
+        # Reduce each cluster to the single globally-dominant tag (highest max ratio
+        # across all regions) so that deduplication is region-independent.
+        representatives: List[str] = []
+        for tags in cluster_selections.values():
+            best = max(
+                tags,
+                key=lambda t: max(
+                    (self.tag_likelihoods.get(r, {}).get(t, 1.0) for r in self.tag_likelihoods),
+                    default=1.0,
+                ),
+            )
+            representatives.append(best)
+        return representatives, ungrouped
 
     def estimate(
         self,
@@ -125,13 +154,18 @@ class BayesianAncestryModel:
                 log_score += math.log(p_m + 1e-12)
                 explanation_parts.append(f"P(M={americas_region}|C,R)≈{p_m:.3f}")
 
-            # P(L | R) from cultural tags
+            # P(L | R) from cultural tags — one score per cluster, highest ratio wins
             if cultural_tags:
-                region_cult_probs = self.p_l_given_r.get(region_id, {})
-                for tag in cultural_tags:
-                    p_l = self._safe_get(region_cult_probs, tag, default=1.0)
-                    log_score += math.log(p_l + 1e-12)
-                    explanation_parts.append(f"P(L={tag}|R)≈{p_l:.3f}")
+                region_likelihoods = self.tag_likelihoods.get(region_id, {})
+                representatives, ungrouped = self._group_tags_by_cluster(cultural_tags)
+                for rep_tag in representatives:
+                    ratio = region_likelihoods.get(rep_tag, 1.0)
+                    log_score += math.log(ratio + 1e-12)
+                    explanation_parts.append(f"P(L={rep_tag}[cluster]|R)≈{ratio:.3f}")
+                for tag in ungrouped:
+                    ratio = region_likelihoods.get(tag, 1.0)
+                    log_score += math.log(ratio + 1e-12)
+                    explanation_parts.append(f"P(L={tag}|R)≈{ratio:.3f}")
 
             scores.append(RegionScore(
                 region_id=region_id,

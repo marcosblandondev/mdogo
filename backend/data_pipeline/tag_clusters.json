@@ -1,0 +1,8 @@
+{
+  "bight_of_benin_cluster": ["yoruba", "fon", "vodou", "candomble", "ewe", "santeria"],
+  "senegambia_cluster":     ["mandinka", "wolof", "islam", "gullah"],
+  "gold_coast_cluster":     ["akan", "twi", "asante", "ashanti"],
+  "biafra_cluster":         ["igbo", "efik"],
+  "sierra_leone_cluster":   ["temne", "mende"],
+  "east_africa_cluster":    ["swahili", "makua"]
+}
