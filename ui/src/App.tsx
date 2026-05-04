@@ -84,7 +84,7 @@ export default function App() {
       console.log('Submitting form data:', requestBody);
 
       // Replace with your actual API endpoint
-      const API_ENDPOINT = 'http://127.0.0.1:8000/estimate-origins';
+      const API_ENDPOINT = 'https://mdogo.marcosblandon.dev/api/estimate-origins';
       
       // Mock response for demonstration
       // In production, uncomment the fetch call below

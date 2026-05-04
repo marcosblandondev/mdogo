@@ -116,6 +116,66 @@ mDogo is meant to **support learning and reflection**, not replace lived identit
 
 ---
 
+## 🚀 Deployment (Namecheap cPanel + CloudLinux Passenger)
+
+This documents the production deployment on a Namecheap shared hosting account using CloudLinux Passenger.
+
+### Prerequisites
+
+- Namecheap shared hosting with SSH access
+- Python app configured in cPanel → **Setup Python App**
+  - App root: `/home/<user>/mdogo.marcosblandon.dev`
+  - App URI: `/api`
+  - Python version: 3.12
+  - Virtualenv: `/home/<user>/virtualenv/mdogo.marcosblandon.dev/3.12`
+
+### Backend
+
+1. Upload all files from `backend/` to `/home/<user>/mdogo.marcosblandon.dev/backend/`
+
+2. Install dependencies via SSH:
+   ```bash
+   source /home/<user>/virtualenv/mdogo.marcosblandon.dev/3.12/bin/activate
+   pip install -r backend/requirements.txt
+   pip install a2wsgi
+   ```
+
+3. Create `passenger_wsgi.py` in the app root (`/home/<user>/mdogo.marcosblandon.dev/`):
+   ```python
+   import sys, os
+   sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'backend'))
+   from server import app
+   from a2wsgi import ASGIMiddleware
+   application = ASGIMiddleware(app)
+   ```
+
+4. In cPanel → Setup Python App, click **Restart**. Passenger manages the process — no manual start needed.
+
+### Frontend
+
+1. Build the React app locally:
+   ```bash
+   cd ui
+   npm install
+   npm run build
+   ```
+
+2. Upload the contents of `ui/dist/` to `public_html/` of the domain.
+
+### How requests are routed
+
+```
+Browser → https://mdogo.marcosblandon.dev/
+  ├── /*        → public_html/ (static React files)
+  └── /api/*    → Passenger → passenger_wsgi.py → FastAPI
+```
+
+### Updating the backend
+
+After uploading changed Python files, restart the app in cPanel → Setup Python App.
+
+---
+
 ## 🤝 Contributing
 
 This project is open to contributions from:
